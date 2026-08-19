@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>GENERAL – Weiterleitung</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .card{background:#fff;border-radius:12px;padding:36px 40px;box-shadow:0 4px 20px rgba(0,0,0,.08);text-align:center;max-width:420px}
+  .dot{width:14px;height:14px;border-radius:50%;background:#0F9AA5;display:inline-block;animation:p 1s infinite alternate}
+  @keyframes p{to{opacity:.25}}
+  a{color:#0F9AA5}
+</style>
+</head>
+<body>
+<div class="card">
+  <p><span class="dot"></span></p>
+  <p><strong>Einen Moment –</strong><br>Sie werden weitergeleitet …</p>
+  <p id="fallback" style="display:none;font-size:14px;color:#555"></p>
+</div>
+<script>
+(function(){
+  // Ziel-Whitelist – keine offene Weiterleitung
+  var NL = "%0D%0A";
+  var bestellBody =
+    "Hallo Team Stuttgart," + NL + NL +
+    "Ansprechpartner:" + NL + NL +
+    "Kommission:" + NL + NL +
+    "Bestellung:" + NL +
+    "Anzahl x Artikelnummer " + encodeURIComponent("–") + " Bezeichnung" + NL + NL +
+    "Mit freundlichen Gr" + encodeURIComponent("üßen");
+  var ZIELE = {
+    doku:        "https://technische-doku.de.generalww.com",
+    katalog:     "https://general-fujitsu.github.io/general-catalog-studio/",
+    bestellen:   "mailto:team.stuttgart@de.generalww.com?subject=" + encodeURIComponent("Bestellung – Lagerware") + "&body=" + bestellBody,
+    angebot:     "mailto:kim.bernhardt@de.generalww.com?subject=" + encodeURIComponent("Angebotsanfrage GENERAL Klimatechnik") + "&body=" + encodeURIComponent("Hallo Herr Bernhardt,\r\n\r\nbitte erstellen Sie uns ein Angebot für:\r\n\r\nObjekt/Kommission:\r\n\r\nGeräte/Anforderung:\r\n\r\nMit freundlichen Grüßen"),
+    infomaterial:"mailto:kim.bernhardt@de.generalww.com?subject=" + encodeURIComponent("Infomaterial anfordern – GENERAL Klimatechnik") + "&body=" + encodeURIComponent("Hallo Herr Bernhardt,\r\n\r\nbitte senden Sie uns Infomaterial zum GENERAL Produktprogramm zu.\r\n\r\nFirma:\r\nAnsprechpartner:\r\n\r\nMit freundlichen Grüßen")
+  };
+  var q = new URLSearchParams(location.search);
+  var z = q.get("z") || "katalog";          // Ziel
+  var k = q.get("k") || "unbekannt";        // Kampagne (bestand / neu)
+  var ziel = ZIELE[z] || ZIELE.katalog;
+
+  // GoatCounter-Zählung per Pixel (funktioniert ohne count.js)
+  var img = new Image();
+  img.src = "https://general-katalog.goatcounter.com/count?p=" +
+            encodeURIComponent("/email/" + k + "/" + z) +
+            "&t=" + encodeURIComponent("E-Mail-Klick " + k + " " + z) +
+            "&rnd=" + Date.now();
+
+  function go(){ location.href = ziel; }
+  img.onload = go; img.onerror = go;
+  setTimeout(go, 900); // Fallback, falls Pixel blockiert
+
+  // Fallback-Anzeige für mailto
+  if (ziel.indexOf("mailto:") === 0) {
+    setTimeout(function(){
+      var f = document.getElementById("fallback");
+      f.style.display = "block";
+      var adr = ziel.substring(7, ziel.indexOf("?"));
+      f.innerHTML = "Ihr E-Mail-Programm hat sich nicht geöffnet?<br>Schreiben Sie direkt an: <a href='" + ziel + "'>" + adr + "</a>";
+    }, 2500);
+  }
+})();
+</script>
+</body>
+</html>
